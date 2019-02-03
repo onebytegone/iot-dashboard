@@ -10,7 +10,7 @@ function getFileNameFromPackageName(packageName) {
 }
 
 module.exports = function(env) {
-   const DIST = path.resolve(__dirname, 'dist');
+   const DIST = path.resolve(__dirname, 'dist', 'js');
 
    env = env || {};
 
@@ -46,7 +46,7 @@ module.exports = function(env) {
                test: /\.ts$/,
                loader: 'ts-loader',
                options: {
-                  configFile: env.tsconfig || path.resolve(__dirname, 'src', 'tsconfig.esm.json'),
+                  configFile: env.tsconfig || path.resolve(__dirname, 'src',  'js', 'tsconfig.esm.json'),
                },
             },
          ],

@@ -1,4 +1,4 @@
-import * as lib from '../src/index';
+import * as lib from '../src/js/index';
 import { expect } from 'chai';
 
 describe('index', () => {
