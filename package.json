@@ -37,6 +37,7 @@
       "grunt-eslint": "21.0.0",
       "grunt-exec": "3.0.0",
       "grunt-sass": "3.0.2",
+      "html-loader": "0.5.5",
       "jsdom": "13.0.0",
       "jsdom-global": "3.0.2",
       "mocha": "5.2.0",
@@ -51,5 +52,7 @@
       "webpack": "4.28.3",
       "webpack-cli": "3.2.0"
    },
-   "dependencies": {}
+   "dependencies": {
+      "vue": "2.5.17"
+   }
 }

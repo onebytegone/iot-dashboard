@@ -31,6 +31,9 @@ module.exports = function(env) {
       // Let webpack recognize both javascript and typescript files
       resolve: {
          extensions: [ '.js', '.ts' ],
+         alias: {
+            'vue$': 'vue/dist/vue.esm.js',
+         },
       },
       // This enables tree shaking by telling webpack that no files in our project
       // contain side effects, allowing it to remove any code that is not imported.
@@ -41,6 +44,11 @@ module.exports = function(env) {
       },
       module: {
          rules: [
+            // all files with a `.html` extension will be handled by `html-loader`
+            {
+               test: /\.html$/,
+               loader: 'html-loader',
+            },
             // all files with a `.ts` extension will be handled by `ts-loader`
             {
                test: /\.ts$/,

@@ -32,6 +32,11 @@ module.exports = (grunt) => {
          ],
          output: './dist/',
       },
+      templates: {
+         all: [
+            './src/js/**/*.html',
+         ],
+      },
       ts: {
          src: './src/js/**/*.ts',
          all: [
@@ -121,6 +126,10 @@ module.exports = (grunt) => {
          scss: {
             files: [ config.scss.all ],
             tasks: [ 'build-css' ],
+         },
+         templates: {
+            files: [ config.templates.all ],
+            tasks: [ 'build-umd' ],
          },
          markup: {
             files: [ config.markup.all ],

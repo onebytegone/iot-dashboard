@@ -1,4 +1,6 @@
-import Example from './Example';
+import App from './App';
+
+const app = new App({ el: '#app' });
 
 // eslint-disable-next-line no-console
-console.log(new Example().doSomething());
+console.log(app.doSomething());
