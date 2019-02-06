@@ -1,0 +1,7 @@
+<div :id="id" class="widget value" :class="classes">
+   <h2 v-if="title">{{ title }}</h2>
+   <div class="content-wrapper">
+      <p v-if="formattedValue">{{ formattedValue }}</p>
+      <p v-else>{{ placeholder }}</p>
+   </div>
+</div>

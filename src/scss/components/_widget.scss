@@ -1,0 +1,45 @@
+// --------------------------------------
+// Widget Styling
+// --------------------------------------
+
+.widget {
+   display: flex;
+   flex-direction: column;
+   overflow: hidden;
+   border: 1px solid #cccccc;
+   h2 {
+      margin: 0.5em 0 0 0.5em;
+      font-weight: normal;
+   }
+   .content-wrapper {
+      flex-grow: 1;
+      display: flex;
+   }
+}
+
+.widget.chart {
+   .content-wrapper {
+      flex-direction: column;
+      padding: 1em 0.5em 0.5em 0.5em;
+   }
+   .chart-wrapper {
+      position: relative;
+      flex-grow: 1;
+   }
+   &.loading .chart-wrapper {
+      display: none;
+   }
+}
+
+.widget.value {
+   .content-wrapper {
+      align-items: center;
+      justify-content: center;
+   }
+   p {
+      text-align: center;
+      font-size: 3em;
+      padding: 0;
+      margin: 0;
+   }
+}

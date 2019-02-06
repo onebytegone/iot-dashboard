@@ -1,0 +1,14 @@
+// --------------------------------------
+// Widget Grid
+// --------------------------------------
+
+@for $i from 1 through 12 {
+   .w#{$i} {
+      grid-column: span #{$i};
+   }
+}
+@for $i from 1 through 20 {
+   .h#{$i} {
+      grid-row: span #{$i};
+   }
+}

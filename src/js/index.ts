@@ -1,6 +1,3 @@
 import App from './App';
 
-const app = new App({ el: '#app' });
-
-// eslint-disable-next-line no-console
-console.log(app.doSomething());
+new App({ el: '#app' }); // eslint-disable-line no-new

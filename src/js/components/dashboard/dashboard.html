@@ -1,0 +1,11 @@
+<div class="dashboard">
+   <h1>Dashboard</h1>
+   <div class="dashboard-widgets">
+      <component
+         v-for="widget in widgets"
+         :key="widget.id"
+         :is="widget.widget"
+         v-bind="widget"
+         ></component>
+   </div>
+</div>

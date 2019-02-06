@@ -8,12 +8,6 @@ const App = Vue.extend({
       Dashboard: Dashboard,
    },
 
-   methods: {
-      doSomething(): string {
-         return 'something';
-      },
-   },
-
 });
 
 export default App;

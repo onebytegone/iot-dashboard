@@ -1,0 +1,7 @@
+<div :id="id" class="widget chart" :class="classes">
+   <h2 v-if="title">{{ title }}</h2>
+   <div class="content-wrapper">
+      <div v-if="isLoading" class="loading-indicator">loading...</div>
+      <div class="chart-wrapper"></div>
+   </div>
+</div>
