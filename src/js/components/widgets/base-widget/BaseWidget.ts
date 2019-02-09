@@ -1,34 +1,30 @@
-import Vue from 'vue';
+import { Vue, Component, Prop } from 'vue-property-decorator';
 import _ from 'underscore';
+import template from './base-widget.html';
 
-const template = require('./base-widget.html');
-
-const BaseWidget = Vue.extend({
+@Component({
    name: 'BaseWidget',
    template: template,
+})
+export default class BaseWidget extends Vue {
 
-   props: {
-      id: String,
-      title: String,
-      size: Object,
-      data: Object,
-   },
+   @Prop(String) public id!: string
+   @Prop(String) public title!: string
+   @Prop(Object) public size!: { width: number; height: number }
+   @Prop(Object) public data!: object
 
-   computed: {
-      classes: function(): object {
-         const classes: { [index: string]: boolean } = {};
+   public get classes(): object {
+      const classes: { [index: string]: boolean } = {};
 
-         classes['w' + this.size.width] = true;
-         classes['h' + this.size.height] = true;
-         classes.loading = this.isLoading;
+      classes['w' + this.size.width] = true;
+      classes['h' + this.size.height] = true;
+      classes.loading = this.isLoading;
 
-         return classes;
-      },
-      isLoading: function() {
-         return _.isEmpty(this.data);
-      },
-   },
+      return classes;
+   }
 
-});
+   public get isLoading(): boolean {
+      return _.isEmpty(this.data);
+   }
 
-export default BaseWidget;
+}

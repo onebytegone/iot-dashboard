@@ -1,32 +1,24 @@
+import { Component, Prop } from 'vue-property-decorator';
 import { sprintf } from 'sprintf-js';
 import BaseWidget from '../base-widget/BaseWidget';
+import template from './value-widget.html';
 
-const template = require('./value-widget.html');
-
-const ValueWidget = BaseWidget.extend({
+@Component({
    name: 'Value',
    template: template,
+})
+export default class ValueWidget extends BaseWidget {
 
-   props: {
-      format: {
-         type: String,
-         default: '%s',
-      },
-      placeholder: {
-         type: String,
-         default: 'n/a',
-      },
-   },
+   @Prop({ default: '%s' }) public format!: string
+   @Prop({ default: 'n/a' }) public placeholder!: string
+   @Prop({ default: {} }) public data!: { value?: string }
 
-   computed: {
-      formattedValue: function(): string {
-         if (!this.data.value) {
-            return '';
-         }
+   public get formattedValue(): string {
+      if (!this.data.value) {
+         return '';
+      }
 
-         return sprintf(this.format, this.data.value);
-      },
-   },
-});
+      return sprintf(this.format, this.data.value);
+   }
 
-export default ValueWidget;
+}

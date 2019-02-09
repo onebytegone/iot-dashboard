@@ -1,58 +1,49 @@
+import { Component, Prop, Watch } from 'vue-property-decorator';
 import Chart from 'chart.js';
 import _ from 'underscore';
 import BaseWidget from '../base-widget/BaseWidget';
+import template from './chart-widget.html';
 
-const template = require('./chart-widget.html');
-
-// TODO: make this change only for ChartWidget
-declare module 'vue/types/vue' {
-   interface Vue {
-      _chart?: Chart;
-   }
-}
-
-const ChartWidget = BaseWidget.extend({
+@Component({
    name: 'Chart',
    template: template,
+})
+export default class ChartWidget extends BaseWidget {
 
-   props: {
-      type: {
-         type: String,
-         default: 'line',
-      },
-      data: Object,
-   },
+   @Prop({ default: 'line' }) public type!: string
+   @Prop({ default: {} }) public data!: { chartDatasets: { label: string; points: Object[]; color: string }[] }
 
-   watch: {
-      data: function() {
-         if (!this._chart) {
-            return;
-         }
+   private _chart?: Chart = undefined
 
-         const datasets = _.chain(this.data.chartDatasets)
-            .map((dataset): Chart.ChartDataSets => {
-               return {
-                  label: dataset.label,
-                  data: dataset.points,
-                  borderColor: dataset.color,
-                  backgroundColor: dataset.color,
-                  fill: false,
-                  cubicInterpolationMode: 'monotone',
-               };
-            })
-            .value();
+   @Watch('data')
+   public onDataChange(): void {
+      if (!this._chart) {
+         return;
+      }
 
-         this._chart.data = {
-            // `labels: []` is needed until a release with the following commit is cut.
-            // https://github.com/chartjs/Chart.js/commit/87e44fa360be580dae085d85d74614dfdc3988c5
-            labels: [],
-            datasets: datasets,
-         };
-         this._chart.update();
-      },
-   },
+      const datasets = _.chain(this.data.chartDatasets)
+         .map((dataset): Chart.ChartDataSets => {
+            return {
+               label: dataset.label,
+               data: dataset.points,
+               borderColor: dataset.color,
+               backgroundColor: dataset.color,
+               fill: false,
+               cubicInterpolationMode: 'monotone',
+            };
+         })
+         .value();
 
-   mounted: function() {
+      this._chart.data = {
+         // `labels: []` is needed until a release with the following commit is cut.
+         // https://github.com/chartjs/Chart.js/commit/87e44fa360be580dae085d85d74614dfdc3988c5
+         labels: [],
+         datasets: datasets,
+      };
+      this._chart.update();
+   }
+
+   public mounted(): void {
       const chartWrapper = this.$el.querySelector('.chart-wrapper'),
             canvas = document.createElement('canvas');
 
@@ -97,7 +88,6 @@ const ChartWidget = BaseWidget.extend({
             },
          },
       });
-   },
-});
+   }
 
-export default ChartWidget;
+}
