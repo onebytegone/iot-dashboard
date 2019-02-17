@@ -6,10 +6,13 @@
    display: flex;
    flex-direction: column;
    overflow: hidden;
-   border: 1px solid #cccccc;
+   border: 1px solid #3b4454;
+   border-radius: 2px;
    h2 {
       margin: 0.5em 0 0 0.5em;
-      font-weight: normal;
+      font-weight: 300;
+      color: #cccccc;
+      font-size: 1.2em;
    }
    .content-wrapper {
       flex-grow: 1;

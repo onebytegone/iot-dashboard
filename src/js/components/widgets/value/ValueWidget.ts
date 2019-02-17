@@ -1,24 +1,26 @@
-import { Component, Prop } from 'vue-property-decorator';
+import { Component, Prop, Mixins } from 'vue-property-decorator';
 import { sprintf } from 'sprintf-js';
-import BaseWidget from '../base-widget/BaseWidget';
+import WidgetMixin from '../WidgetMixin';
 import template from './value-widget.html';
 
 @Component({
    name: 'Value',
    template: template,
 })
-export default class ValueWidget extends BaseWidget {
+export default class ValueWidget extends Mixins(WidgetMixin) {
 
+   @Prop(Object) public dataSource?: { fetch: () => Promise<ValueWidgetData> }
    @Prop({ default: '%s' }) public format!: string
    @Prop({ default: 'n/a' }) public placeholder!: string
-   @Prop({ default: {} }) public data!: { value?: string }
+
+   public fetchedData: ValueWidgetData = {}
 
    public get formattedValue(): string {
-      if (!this.data.value) {
+      if (!this.fetchedData.value) {
          return '';
       }
 
-      return sprintf(this.format, this.data.value);
+      return sprintf(this.format, this.fetchedData.value);
    }
 
 }

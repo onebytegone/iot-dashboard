@@ -12,3 +12,19 @@
       grid-row: span #{$i};
    }
 }
+
+$breakpointList: small medium large;
+@each $breakpoint in $breakpointList {
+   @include respond-to(#{$breakpoint}) {
+      @for $i from 1 through 12 {
+         .w#{$i}-#{$breakpoint} {
+            grid-column: span #{$i};
+         }
+      }
+      @for $i from 1 through 20 {
+         .h#{$i}-#{$breakpoint} {
+            grid-row: span #{$i};
+         }
+      }
+   }
+}
