@@ -3,7 +3,7 @@
    "version": "0.1.0",
    "description": "",
    "scripts": {
-      "test": "TS_NODE_PROJECT='tests/tsconfig.json' nyc mocha --opts ./.mocha.opts"
+      "test": "TS_NODE_PROJECT='tsconfig.tests.json' TS_NODE_FILES=true nyc mocha --opts ./.mocha.opts"
    },
    "author": "Ethan Smith",
    "license": "MIT",
