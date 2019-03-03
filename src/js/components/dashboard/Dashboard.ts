@@ -1,76 +1,101 @@
-import Vue from 'vue';
+import { Vue, Component, Prop } from 'vue-property-decorator';
+import _ from 'underscore';
 import ChartWidget from '../widgets/chart/ChartWidget';
 import ValueWidget from '../widgets/value/ValueWidget';
+import FeedDataSource from '../../lib/data-sources/feed-api/FeedDataSource';
+import FeedResultsToChartDatasetConverter from '../../lib/data-sources/feed-api/converters/FeedResultsToChartDatasetConverter';
+import FeedResultsToSingleValueConverter from '../../lib/data-sources/feed-api/converters/FeedResultsToSingleValueConverter';
+import template from './dashboard.html';
 
-const template = require('./dashboard.html');
-
-const Dashboard = Vue.extend({
+@Component({
    name: 'Dashboard',
    template: template,
-
    components: {
       Chart: ChartWidget,
       Value: ValueWidget,
    },
+})
+export default class Dashboard extends Vue {
 
-   data: function(): object {
-      return {
-         widgets: [
-            {
-               id: 'widget_one',
-               widget: 'Chart',
-               title: 'Graph',
-               size: { width: 9, height: 8 },
-               data: {},
-            },
-            {
-               id: 'widget_two',
-               widget: 'Value',
-               size: { width: 3, height: 4 },
-               data: {},
-            },
-            {
-               id: 'widget_three',
-               widget: 'Value',
-               title: 'Other Value',
-               size: { width: 3, height: 4 },
-               data: {},
-            },
-         ],
-      };
-   },
+   @Prop(Object) public configProvider!: {
+      getConfig: () => Promise<DashboardConfig>;
+   }
 
-   mounted: function() {
-      this._requestAndUpdateChartData();
-   },
+   public title: string = ''
+   public widgets: WidgetVueProps[] = []
 
-   methods: {
-      _requestAndUpdateChartData: function() {
-         // TODO: pull from data source
-         new Promise((resolve) => setTimeout(resolve, 3000))
-            .then(() => {
-               this.$data.widgets[0].data = {
-                  chartDatasets: [
-                     {
-                        label: 'Temperature',
-                        points: [
-                           { x: new Date(2019, 2, 5, 12, 0, 0), y: 60 },
-                           { x: new Date(2019, 2, 5, 13, 0, 0), y: 66 },
-                           { x: new Date(2019, 2, 5, 14, 0, 0), y: 63 },
-                           { x: new Date(2019, 2, 5, 15, 0, 0), y: 64 },
-                           { x: new Date(2019, 2, 5, 16, 0, 0), y: 62 },
-                           { x: new Date(2019, 2, 5, 17, 0, 0), y: 65 },
-                        ],
-                        color: '#f0f00f',
+   public mounted(): void {
+      this.configProvider.getConfig()
+         .then((config) => {
+            const dataSources = _.mapObject(_.indexBy(config.dataSources, 'id'), (dataSourceConfig) => {
+               if (dataSourceConfig.type === 'feed') {
+                  return new FeedDataSource(dataSourceConfig.config);
+               }
+
+               // TODO: Other source types
+
+               throw new Error(`Unknown type ${dataSourceConfig.type} for data source ${dataSourceConfig.id}`);
+            });
+
+            this.title = config.title;
+            this.widgets = _.map(config.widgets, (configEntry): WidgetVueProps => {
+               // TODO: extract into validator of some sort
+               const undefinedDataSources = _.filter(configEntry.datasets, (datasetConfig) => {
+                  return !_.has(dataSources, datasetConfig.dataSourceID);
+               });
+
+               if (undefinedDataSources.length) {
+                  let undefinedDataSourceIDs = _.pluck(undefinedDataSources, 'dataSourceID');
+
+                  throw new Error(
+                     `Found unconfigured data sources (${undefinedDataSourceIDs.join(',')}) for ${configEntry.id}`
+                  );
+               }
+
+               return {
+                  id: configEntry.id,
+                  widget: configEntry.type, // TODO: add proper mapping here
+                  title: configEntry.title,
+                  layout: configEntry.layout,
+                  dataSource: {
+                     fetch: function() {
+                        const promises = _.map(configEntry.datasets, (datasetConfig) => {
+                           const dataSource = dataSources[datasetConfig.dataSourceID];
+
+                           return dataSource.fetchFeed(datasetConfig.options)
+                              .then((rawDataSet: FeedResults) => {
+                                 let datasetConverter;
+
+                                 // TODO: add proper switching here
+                                 if (configEntry.type === 'chart') {
+                                    datasetConverter = new FeedResultsToChartDatasetConverter();
+                                 } else {
+                                    datasetConverter = new FeedResultsToSingleValueConverter();
+                                 }
+
+                                 // TODO: This needs more thought
+                                 return datasetConverter.convert({ ...rawDataSet, ...datasetConfig });
+                              });
+                        });
+
+                        return Promise.all(promises)
+                           .then((dataSets) => {
+                              // TODO: add proper switching here
+                              if (configEntry.type === 'chart') {
+                                 return {
+                                    chartDatasets: dataSets,
+                                 };
+                              }
+
+                              return {
+                                 value: _.first(dataSets),
+                              };
+                           });
                      },
-                  ],
-               };
-               this.$data.widgets[2].data = {
-                  value: '42',
+                  },
                };
             });
-      },
-   },
-});
+         });
+   }
 
-export default Dashboard;
+}

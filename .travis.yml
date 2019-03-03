@@ -12,7 +12,6 @@ script:
    - node --version
    - npm --version
    - grunt standards
-   - npm test
 
 # For code coverage:
 after_success:

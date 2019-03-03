@@ -1,58 +1,23 @@
+import { Component, Prop, Mixins, Watch } from 'vue-property-decorator';
 import Chart from 'chart.js';
 import _ from 'underscore';
-import BaseWidget from '../base-widget/BaseWidget';
+import WidgetMixin from '../WidgetMixin';
+import template from './chart-widget.html';
 
-const template = require('./chart-widget.html');
-
-// TODO: make this change only for ChartWidget
-declare module 'vue/types/vue' {
-   interface Vue {
-      _chart?: Chart;
-   }
-}
-
-const ChartWidget = BaseWidget.extend({
+@Component({
    name: 'Chart',
    template: template,
+})
+export default class ChartWidget extends Mixins(WidgetMixin) {
 
-   props: {
-      type: {
-         type: String,
-         default: 'line',
-      },
-      data: Object,
-   },
+   @Prop(Object) public dataSource?: { fetch: () => Promise<ChartWidgetData> }
+   @Prop({ default: 'line' }) public type!: ChartType
 
-   watch: {
-      data: function() {
-         if (!this._chart) {
-            return;
-         }
+   public fetchedData: ChartWidgetData = {}
 
-         const datasets = _.chain(this.data.chartDatasets)
-            .map((dataset): Chart.ChartDataSets => {
-               return {
-                  label: dataset.label,
-                  data: dataset.points,
-                  borderColor: dataset.color,
-                  backgroundColor: dataset.color,
-                  fill: false,
-                  cubicInterpolationMode: 'monotone',
-               };
-            })
-            .value();
+   private _chart?: Chart = undefined
 
-         this._chart.data = {
-            // `labels: []` is needed until a release with the following commit is cut.
-            // https://github.com/chartjs/Chart.js/commit/87e44fa360be580dae085d85d74614dfdc3988c5
-            labels: [],
-            datasets: datasets,
-         };
-         this._chart.update();
-      },
-   },
-
-   mounted: function() {
+   public mounted(): void {
       const chartWrapper = this.$el.querySelector('.chart-wrapper'),
             canvas = document.createElement('canvas');
 
@@ -71,33 +36,77 @@ const ChartWidget = BaseWidget.extend({
             },
             legend: {
                position: 'bottom',
+               labels: {
+                  fontColor: '#dedede',
+                  fontFamily: 'Ubuntu, sans-serif',
+               },
             },
             scales: {
                xAxes: [
                   {
                      type: 'time',
                      gridLines: {
-                        color: '#666666',
+                        color: '#5f6877',
                      },
                      ticks: {
-                        fontColor: '#cccccc',
+                        fontColor: '#bbbbbb',
+                        fontFamily: 'Ubuntu, sans-serif',
                      },
                   },
                ],
                yAxes: [
                   {
                      gridLines: {
-                        color: '#666666',
+                        color: '#5f6877',
                      },
                      ticks: {
-                        fontColor: '#cccccc',
+                        fontColor: '#bbbbbb',
+                        fontFamily: 'Ubuntu, sans-serif',
                      },
                   },
                ],
             },
          },
       });
-   },
-});
+   }
 
-export default ChartWidget;
+   @Watch('fetchedData')
+   protected _onDataChange(): void {
+      if (!this._chart || !this.fetchedData.chartDatasets) {
+         return;
+      }
+
+      const colors = [
+         '#19aee0',
+         '#00bdd0',
+         '#00c6a4',
+         '#5fc96a',
+         '#b2c32f',
+         '#ffb01c',
+      ];
+
+      const datasets = _.chain(this.fetchedData.chartDatasets)
+         .map((dataset): Chart.ChartDataSets => {
+            const color = dataset.color || colors.pop() || '#aaaaaa';
+
+            return {
+               label: dataset.label,
+               data: dataset.points,
+               borderColor: color,
+               backgroundColor: color,
+               fill: false,
+               cubicInterpolationMode: 'monotone',
+            };
+         })
+         .value();
+
+      this._chart.data = {
+         // `labels: []` is needed until a release with the following commit is cut.
+         // https://github.com/chartjs/Chart.js/commit/87e44fa360be580dae085d85d74614dfdc3988c5
+         labels: [],
+         datasets: datasets,
+      };
+      this._chart.update();
+   }
+
+}
